@@ -1,75 +1,27 @@
 import React, { useState, useEffect, useRef } from "react";
 import RouletteWheel from "./RouletteWheel";
 import playerSvg from "../assets/player.svg";
+import InterstitialAd from "./InterstitialAd";
 
-// Country flag color database for World Cup 2026 hosts and participants
-const COUNTRY_COLORS = {
-  Francia: ["#00209F", "#FFFFFF", "#E10021"],
-  España: ["#C60B1E", "#FFC400", "#C60B1E"],
-  Argentina: ["#74ACDF", "#FFFFFF", "#74ACDF"],
-  Inglaterra: ["#FFFFFF", "#CF081F", "#FFFFFF"],
-  Portugal: ["#006600", "#FF0000", "#FFCC00"],
-  Brasil: ["#009B3A", "#FEDF00", "#002776"],
-  Holanda: ["#FF4F00", "#FFFFFF", "#21468B"],
-  "Países Bajos": ["#FF4F00", "#FFFFFF", "#21468B"],
-  Marruecos: ["#C1272D", "#006233", "#C1272D"],
-  Bélgica: ["#000000", "#FDDA24", "#EF3340"],
-  Alemania: ["#000000", "#DD0000", "#FFCC00"],
-  Croacia: ["#FF0000", "#FFFFFF", "#171796"],
-  Colombia: ["#FCD116", "#003893", "#CE1126"],
+// Vibrant neon color palettes for active glows during spins
+const RANDOM_GLOW_COLORS = [
+  ["#00f2fe", "#4facfe", "#3b82f6"], // Cyan / Blue
+  ["#ec4899", "#a855f7", "#6366f1"], // Pink / Purple / Indigo
+  ["#10b981", "#059669", "#34d399"], // Emerald / Green
+  ["#fbbf24", "#f59e0b", "#f87171"], // Amber / Orange / Red
+  ["#f43f5e", "#e11d48", "#fda4af"], // Rose / Coral
+  ["#06b6d4", "#0891b2", "#22d3ee"], // Cyan / Teal
+];
 
-  Senegal: ["#00853F", "#FDEF42", "#E31B23"],
-  México: ["#006847", "#FFFFFF", "#CE1126"],
-  "Estados Unidos": ["#B22234", "#FFFFFF", "#3C3B6E"],
-  Uruguay: ["#0081C6", "#FFFFFF", "#FFD700"],
-  Japón: ["#FFFFFF", "#BC002D", "#FFFFFF"],
-  Suiza: ["#D80027", "#FFFFFF", "#D80027"],
-  Irán: ["#228B22", "#FFFFFF", "#DA291C"],
-  Austria: ["#ED2939", "#FFFFFF", "#ED2939"],
-  Turquía: ["#E30A17", "#FFFFFF", "#E30A17"],
-  Ecuador: ["#FFDD00", "#0033A0", "#D52B1E"],
-  "Corea del Sur": ["#FFFFFF", "#CD113B", "#0047A0"],
-  Argelia: ["#006633", "#FFFFFF", "#D21920"],
-
-  Australia: ["#00008B", "#FF0000", "#FFFFFF"],
-  Egipto: ["#C0930C", "#FFFFFF", "#E31B23"],
-  Canadá: ["#FF0000", "#FFFFFF", "#FF0000"],
-  Noruega: ["#EF2B2D", "#FFFFFF", "#002868"],
-  Panamá: ["#005293", "#FFFFFF", "#D21034"],
-  "Costa de Marfil": ["#F77F00", "#FFFFFF", "#009E60"],
-  Suecia: ["#006AA7", "#FECC02", "#006AA7"],
-  Paraguay: ["#D52B1E", "#FFFFFF", "#003893"],
-  "República Checa": ["#11457E", "#FFFFFF", "#D91A30"],
-  Escocia: ["#005EB8", "#FFFFFF", "#005EB8"],
-  Bosnia: ["#00209F", "#FFCC00", "#00209F"],
-  "Bosnia y Herzegovina": ["#00209F", "#FFCC00", "#00209F"],
-  "RD Congo": ["#007FFF", "#FCD116", "#E10021"],
-  Serbia: ["#C6363C", "#0C4076", "#FFFFFF"],
-
-  Jordania: ["#000000", "#FFFFFF", "#C60C30"],
-  Haití: ["#00209F", "#D21034", "#00209F"],
-  Ghana: ["#E31B23", "#FCD116", "#006B3F"],
-  Qatar: ["#8A1538", "#FFFFFF", "#8A1538"],
-  "Cabo Verde": ["#002F6C", "#FFFFFF", "#C8102E"],
-  Irak: ["#E31B23", "#FFFFFF", "#007A3D"],
-  Congo: ["#009F4D", "#FCD116", "#D11919"],
-  Curazao: ["#002F6C", "#FFFFFF", "#FED141"],
-  Túnez: ["#E30A17", "#FFFFFF", "#E30A17"],
-  "Nueva Zelanda": ["#000000", "#FFFFFF", "#000000"],
-  Sudáfrica: ["#007A4D", "#FFFFFF", "#E31B23"],
-  Uzbekistán: ["#0099B5", "#FFFFFF", "#1EB53A"],
-  "Arabia Saudita": ["#006C35", "#FFFFFF", "#006C35"],
-};
-
-// Helper to strip flag emojis and clean country strings for map lookup
-const getCleanCountryName = (teamName) => {
-  if (!teamName) return "";
-  return teamName
-    .replace(
-      /[\uE000-\uF8FF]|\uD83C[\uDC00-\uDFFF]|\uD83D[\uDC00-\uDFFF]|[\u2011-\u26FF]|\uD83E[\uDD10-\uDDFF]/g,
-      "",
-    )
-    .trim();
+// Helper to calculate a deterministic color palette based on team name hash
+const getGlowColors = (teamName) => {
+  if (!teamName) return ["#00f2fe", "#4facfe", "#3b82f6"];
+  let hash = 0;
+  for (let i = 0; i < teamName.length; i++) {
+    hash = teamName.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % RANDOM_GLOW_COLORS.length;
+  return RANDOM_GLOW_COLORS[index];
 };
 
 export default function DrawDashboard({
@@ -78,9 +30,16 @@ export default function DrawDashboard({
   results = [],
   onDrawComplete = () => {},
   playTick = () => {},
+  isCelebrationActive = false,
+  t,
+  lang,
 }) {
-  const [selectedPot, setSelectedPot] = useState("Bombo 1");
+  const [selectedPot, setSelectedPot] = useState(() => {
+    const keys = Object.keys(pots);
+    return keys.includes("Bombo 1") ? "Bombo 1" : (keys[0] || "Bombo 1");
+  });
   const [isSpinning, setIsSpinning] = useState(false);
+  const [showInterstitial, setShowInterstitial] = useState(false);
   const [leftTargetIdx, setLeftTargetIdx] = useState(null);
   const [rightTargetIdx, setRightTargetIdx] = useState(null);
 
@@ -97,15 +56,7 @@ export default function DrawDashboard({
     (t) => !results.some((r) => r.pot === selectedPot && r.team === t),
   );
 
-  // Handle spin trigger
-  const handleSpin = () => {
-    if (
-      isSpinning ||
-      remainingParticipants.length === 0 ||
-      remainingTeams.length === 0
-    )
-      return;
-
+  const startSpinning = () => {
     setIsSpinning(true);
     setLeftTargetIdx(null);
     setRightTargetIdx(null);
@@ -120,6 +71,32 @@ export default function DrawDashboard({
 
     setLeftTargetIdx(randPersonIdx);
     setRightTargetIdx(randTeamIdx);
+  };
+
+  // Handle spin trigger
+  const handleSpin = () => {
+    if (
+      isSpinning ||
+      remainingParticipants.length === 0 ||
+      remainingTeams.length === 0 ||
+      isCountMismatch
+    )
+      return;
+
+    // Check if it's the first spin of the session
+    const adShown = sessionStorage.getItem("raffle_session_ad_shown");
+    if (adShown !== "true") {
+      setShowInterstitial(true);
+      return;
+    }
+
+    startSpinning();
+  };
+
+  const handleCloseAd = () => {
+    sessionStorage.setItem("raffle_session_ad_shown", "true");
+    setShowInterstitial(false);
+    startSpinning(); // Auto-start spin after closing the ad
   };
 
   const spinCompleteCountRef = useRef(0);
@@ -160,16 +137,39 @@ export default function DrawDashboard({
     setActiveTeam("");
   }, [selectedPot]);
 
+  // Auto-draw when exactly 1 participant and 1 team remain
+  useEffect(() => {
+    if (isSpinning || isCelebrationActive) return;
+
+    if (remainingParticipants.length === 1 && remainingTeams.length === 1) {
+      const lastPerson = remainingParticipants[0];
+      const lastTeam = remainingTeams[0];
+
+      // Instantly settle the central card display
+      setActivePerson(lastPerson);
+      setActiveTeam(lastTeam);
+
+      // Trigger the selection completion
+      onDrawComplete(selectedPot, lastPerson, lastTeam);
+    }
+  }, [
+    remainingParticipants.length,
+    remainingTeams.length,
+    isSpinning,
+    isCelebrationActive,
+    selectedPot,
+    onDrawComplete,
+  ]);
+
   const isPotFilled =
     remainingParticipants.length === 0 || remainingTeams.length === 0;
 
-  // Determine active flag colors for the central player card
-  const cleanActiveCountry = getCleanCountryName(activeTeam);
-  const flagColors = COUNTRY_COLORS[cleanActiveCountry] || [
-    "#10b981",
-    "#3b82f6",
-    "#fbbf24",
-  ]; // Default fallback
+  const totalParticipantsCount = participants.length;
+  const totalTeamsCount = (pots[selectedPot] || []).length;
+  const isCountMismatch = totalParticipantsCount !== totalTeamsCount;
+
+  // Determine active colors for the central card glow
+  const flagColors = getGlowColors(activeTeam);
 
   const activeGlow = flagColors[1] || flagColors[0] || "rgba(0,242,254,0.3)";
   const activeBorder = flagColors[0] || "var(--card-border)";
@@ -200,9 +200,9 @@ export default function DrawDashboard({
           }}
         >
           <div style={{ textAlign: "left" }}>
-            <h2 style={{ fontSize: "1.5rem", fontWeight: 800 }}>
-              Sorteo de Grupos FIFA 2026™
-            </h2>
+            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, margin: 0 }}>
+              {t("dashboard_title")}
+            </h1>
           </div>
 
           <div className="pot-select-container">
@@ -213,7 +213,7 @@ export default function DrawDashboard({
                 fontWeight: 500,
               }}
             >
-              Bombo Activo:
+              {t("bombo_activo")}
             </span>
             <select
               className="custom-select"
@@ -221,7 +221,12 @@ export default function DrawDashboard({
               onChange={(e) => setSelectedPot(e.target.value)}
               disabled={isSpinning}
             >
-              {Object.keys(pots).map((potName) => (
+              {Object.keys(pots).sort((a, b) => {
+                const numA = parseInt(a.replace(/^\D+/g, ''), 10) || 0;
+                const numB = parseInt(b.replace(/^\D+/g, ''), 10) || 0;
+                if (numA && numB) return numA - numB;
+                return a.localeCompare(b);
+              }).map((potName) => (
                 <option key={potName} value={potName}>
                   {potName}
                 </option>
@@ -246,7 +251,7 @@ export default function DrawDashboard({
           }}
         >
           <div>
-            Participantes Libres:{" "}
+            {t("participants_free")}{" "}
             <span style={{ color: "var(--cyan-primary)", fontWeight: 700 }}>
               {remainingParticipants.length}
             </span>
@@ -255,7 +260,7 @@ export default function DrawDashboard({
             style={{ borderLeft: "1px solid rgba(255, 255, 255, 0.1)" }}
           ></div>
           <div>
-            Equipos Disponibles:{" "}
+            {t("teams_available")}{" "}
             <span style={{ color: "var(--magenta-primary)", fontWeight: 700 }}>
               {remainingTeams.length}
             </span>
@@ -276,7 +281,7 @@ export default function DrawDashboard({
                   background: "var(--cyan-primary)",
                 }}
               ></span>
-              Participantes
+              {t("participants_title")}
             </div>
             <RouletteWheel
               items={remainingParticipants}
@@ -288,6 +293,7 @@ export default function DrawDashboard({
               }
               colorTheme="cyan"
               playTick={playTick}
+              emptyText={t("empty_wheel")}
             />
           </div>
 
@@ -327,7 +333,7 @@ export default function DrawDashboard({
 
               {/* Ticker values */}
               <div className="ticker-names">
-                <span className="ticker-label">SORTEO EN VIVO</span>
+                <span className="ticker-label">{t("live_draft")}</span>
                 <div
                   className={`ticker-person ${isSpinning ? "spinning" : ""}`}
                 >
@@ -335,7 +341,7 @@ export default function DrawDashboard({
                 </div>
                 <div className="ticker-vs">vs</div>
                 <div className={`ticker-team ${isSpinning ? "spinning" : ""}`}>
-                  {activeTeam || "ESPERANDO..."}
+                  {activeTeam || t("waiting")}
                 </div>
               </div>
             </div>
@@ -356,7 +362,7 @@ export default function DrawDashboard({
                   background: "var(--magenta-primary)",
                 }}
               ></span>
-              Equipos
+              {t("teams_title")}
             </div>
             <RouletteWheel
               items={remainingTeams}
@@ -366,6 +372,7 @@ export default function DrawDashboard({
               onActiveItemChange={(idx) => setActiveTeam(remainingTeams[idx])}
               colorTheme="magenta"
               playTick={playTick}
+              emptyText={t("empty_wheel")}
             />
           </div>
         </div>
@@ -375,21 +382,29 @@ export default function DrawDashboard({
           <button
             className="btn-spin-horizontal"
             onClick={handleSpin}
-            disabled={isSpinning || isPotFilled}
+            disabled={isSpinning || isPotFilled || isCountMismatch}
           >
             {isSpinning
-              ? "SORTEANDO BOMBOS..."
-              : isPotFilled
-                ? "SORTEO COMPLETADO"
-                : "GIRAR RULETA"}
+              ? t("spin_btn_spinning")
+              : isCountMismatch
+                ? t("spin_btn_mismatch")
+                : isPotFilled
+                  ? t("spin_btn_completed")
+                  : t("spin_btn_idle")}
           </button>
-          <span className="spin-subtext">
-            {isPotFilled
-              ? "Todos los sorteos para este bombo se han realizado"
-              : "Presiona para elegir un par al azar"}
+          <span className="spin-subtext" style={{ color: isCountMismatch ? "#f87171" : "var(--text-secondary)" }}>
+            {isCountMismatch
+              ? t("spin_subtext_mismatch", { totalParticipants: totalParticipantsCount, totalTeams: totalTeamsCount })
+              : isPotFilled
+                ? t("spin_subtext_completed")
+                : t("spin_subtext_idle")}
           </span>
         </div>
       </div>
+
+      {showInterstitial && (
+        <InterstitialAd onClose={handleCloseAd} t={t} />
+      )}
     </div>
   );
 }

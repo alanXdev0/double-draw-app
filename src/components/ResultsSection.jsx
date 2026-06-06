@@ -1,10 +1,17 @@
 import React from 'react';
 
 export default function ResultsSection({
+  pots = {},
   results = [],
-  onRemoveResult = () => {}
+  onRemoveResult = () => {},
+  t
 }) {
-  const potsList = ['Bombo 1', 'Bombo 2', 'Bombo 3', 'Bombo 4'];
+  const potsList = Object.keys(pots).sort((a, b) => {
+    const numA = parseInt(a.replace(/^\D+/g, ''), 10) || 0;
+    const numB = parseInt(b.replace(/^\D+/g, ''), 10) || 0;
+    if (numA && numB) return numA - numB;
+    return a.localeCompare(b);
+  });
 
   const getResultsForPot = (potName) => {
     return results.filter(r => r.pot === potName);
@@ -12,17 +19,17 @@ export default function ResultsSection({
 
   const copyToClipboard = () => {
     if (results.length === 0) {
-      alert('No hay resultados para copiar.');
+      alert(t('results_no_results'));
       return;
     }
 
-    let text = '🏆 RESULTADOS DEL SORTEO DE EQUIPOS 🏆\n\n';
+    let text = t('results_clipboard_header');
     
     potsList.forEach(pot => {
       const potResults = getResultsForPot(pot);
       text += `📦 ${pot.toUpperCase()}:\n`;
       if (potResults.length === 0) {
-        text += '  (Sin sorteos aún)\n';
+        text += t('results_clipboard_empty');
       } else {
         potResults.forEach(r => {
           text += `  • ${r.person} ➔ ${r.team}\n`;
@@ -32,10 +39,10 @@ export default function ResultsSection({
     });
 
     navigator.clipboard.writeText(text)
-      .then(() => alert('¡Resultados copiados al portapapeles!'))
+      .then(() => alert(t('results_copied')))
       .catch(err => {
         console.error('Error al copiar: ', err);
-        alert('No se pudo copiar automáticamente. Por favor, selecciona el texto manualmente.');
+        alert(t('results_copy_failed'));
       });
   };
 
@@ -45,9 +52,9 @@ export default function ResultsSection({
       {/* Header and Copy Action */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div style={{ textAlign: 'left' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>Resultados Asignados</h2>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 800 }}>{t('results_title')}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
-            Los ganadores sorteados se retiran de las ruletas y se listan aquí.
+            {t('results_subtitle')}
           </p>
         </div>
         
@@ -56,7 +63,7 @@ export default function ResultsSection({
           onClick={copyToClipboard}
           style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
         >
-          📋 Copiar Resultados
+          {t('results_btn_copy')}
         </button>
       </div>
 
@@ -72,13 +79,15 @@ export default function ResultsSection({
                 <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>
                   {potName}
                 </span>
-                <span className={badgeClass}>{potResults.length} / 12</span>
+                <span className={badgeClass}>
+                  {potResults.length} / {pots[potName] ? pots[potName].length : 0}
+                </span>
               </div>
               
               <div className="pair-list">
                 {potResults.length === 0 ? (
                   <div className="empty-state">
-                    Ningún equipo asignado
+                    {t('results_empty_state')}
                   </div>
                 ) : (
                   potResults.map((r, idx) => (
@@ -93,7 +102,7 @@ export default function ResultsSection({
                           type="button"
                           className="btn-remove-pair"
                           onClick={() => onRemoveResult(r.pot, r.person, r.team)}
-                          title="Eliminar este sorteo y regresar a la ruleta"
+                          title={t('results_remove_tooltip')}
                         >
                           &times;
                         </button>

@@ -8,12 +8,15 @@ import {
 import DrawDashboard from './components/DrawDashboard';
 import SetupPanel from './components/SetupPanel';
 import ResultsSection from './components/ResultsSection';
+import AdBanner from './components/AdBanner';
+import OnboardingWizard from './components/OnboardingWizard';
+import { getTranslationHelper } from './data/translations';
 
 function App() {
   // Sound Hook
   const { playTick, playWin, playWhistle, initAudio } = useAudio();
 
-  const CURRENT_VERSION = 'v2_pots';
+  const CURRENT_VERSION = 'v4_empty_defaults';
 
   // State loaded from localStorage or fallback to defaults
   const [participants, setParticipants] = useState(() => {
@@ -39,12 +42,50 @@ function App() {
 
   const [activeTab, setActiveTab] = useState('sorteo'); // 'sorteo' | 'config'
 
+  // Language state initialized by local storage or browser language detection
+  const [lang, setLang] = useState(() => {
+    const saved = localStorage.getItem('raffle_lang');
+    if (saved) return saved;
+    const browserLang = (navigator.language || navigator.userLanguage || 'en').toLowerCase().split('-')[0];
+    const supported = ['es', 'en', 'pt', 'fr', 'de', 'it', 'ar'];
+    return supported.includes(browserLang) ? browserLang : 'en';
+  });
+
+  const t = getTranslationHelper(lang);
+
+  useEffect(() => {
+    localStorage.setItem('raffle_lang', lang);
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }, [lang]);
+
   // Celebration overlay state lifted to root level
   const [showCelebration, setShowCelebration] = useState(false);
   const [drawnPair, setDrawnPair] = useState(null);
 
+  const [showWizard, setShowWizard] = useState(() => {
+    const version = localStorage.getItem('raffle_version');
+    if (version !== CURRENT_VERSION) {
+      localStorage.removeItem('raffle_setup_completed');
+      return true;
+    }
+    return localStorage.getItem('raffle_setup_completed') !== 'true';
+  });
+
   const confettiCanvasRef = useRef(null);
   const confettiAnimRef = useRef(null);
+
+  const handleWizardComplete = (wizardParticipants, wizardPots) => {
+    setParticipants(wizardParticipants);
+    setPots(wizardPots);
+    setResults([]); // Clear results on new configuration
+    localStorage.setItem('raffle_participants', JSON.stringify(wizardParticipants));
+    localStorage.setItem('raffle_pots', JSON.stringify(wizardPots));
+    localStorage.setItem('raffle_results', JSON.stringify([]));
+    localStorage.setItem('raffle_version', CURRENT_VERSION);
+    localStorage.setItem('raffle_setup_completed', 'true');
+    setShowWizard(false);
+  };
 
   // Persist states to localStorage
   useEffect(() => {
@@ -63,13 +104,32 @@ function App() {
     localStorage.setItem('raffle_results', JSON.stringify(results));
   }, [results]);
 
-  // State Management Functions
-  const addParticipant = (name) => {
-    if (participants.includes(name)) {
-      alert('Esta persona ya está en la lista de participantes.');
-      return;
+  const addParticipant = (nameInput) => {
+    const names = nameInput.split(',').map(n => n.trim()).filter(n => n.length > 0);
+    if (names.length === 0) return;
+    
+    const duplicates = [];
+    const toAdd = [];
+    const existingLower = participants.map(p => p.toLowerCase());
+    const toAddLower = [];
+    
+    names.forEach(name => {
+      const lower = name.toLowerCase();
+      if (existingLower.includes(lower) || toAddLower.includes(lower)) {
+        duplicates.push(name);
+      } else {
+        toAdd.push(name);
+        toAddLower.push(lower);
+      }
+    });
+
+    if (duplicates.length > 0) {
+      alert(`${t('alert_duplicate_participant')} (${duplicates.join(', ')})`);
     }
-    setParticipants([...participants, name]);
+    
+    if (toAdd.length > 0) {
+      setParticipants(prev => [...prev, ...toAdd]);
+    }
   };
 
   const removeParticipant = (name) => {
@@ -77,16 +137,42 @@ function App() {
     setResults(results.filter(r => r.person !== name));
   };
 
-  const addTeam = (pot, teamName) => {
-    const potTeams = pots[pot] || [];
-    if (potTeams.includes(teamName)) {
-      alert(`Este equipo ya está registrado en el ${pot}.`);
-      return;
-    }
-    setPots({
-      ...pots,
-      [pot]: [...potTeams, teamName]
+  const addTeam = (pot, teamInput) => {
+    const teams = teamInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    if (teams.length === 0) return;
+    
+    const maxAllowed = participants.length;
+    const currentCount = (pots[pot] || []).length;
+    
+    const duplicates = [];
+    const toAdd = [];
+    const existingTeamsLower = Object.values(pots).flat().map(t => t.toLowerCase());
+    const toAddLower = [];
+    
+    teams.forEach(team => {
+      const lower = team.toLowerCase();
+      if (existingTeamsLower.includes(lower) || toAddLower.includes(lower)) {
+        duplicates.push(team);
+      } else {
+        toAdd.push(team);
+        toAddLower.push(lower);
+      }
     });
+
+    if (duplicates.length > 0) {
+      alert(`${t('alert_duplicate_team')} (${duplicates.join(', ')})`);
+    }
+    
+    if (toAdd.length > 0) {
+      if (currentCount + toAdd.length > maxAllowed) {
+        alert(t('alert_pot_teams_exceeded'));
+        return;
+      }
+      setPots(prev => ({
+        ...prev,
+        [pot]: [...(prev[pot] || []), ...toAdd]
+      }));
+    }
   };
 
   const removeTeam = (pot, teamName) => {
@@ -96,6 +182,47 @@ function App() {
       [pot]: potTeams.filter(t => t !== teamName)
     });
     setResults(results.filter(r => !(r.pot === pot && r.team === teamName)));
+  };
+
+  const updatePotCount = (newCount) => {
+    if (newCount < 1) return;
+    
+    const currentKeys = Object.keys(pots).sort((a, b) => {
+      const numA = parseInt(a.replace(/^\D+/g, ''), 10) || 0;
+      const numB = parseInt(b.replace(/^\D+/g, ''), 10) || 0;
+      if (numA && numB) return numA - numB;
+      return a.localeCompare(b);
+    });
+    
+    const currentCount = currentKeys.length;
+    
+    if (newCount < currentCount) {
+      const potsToDelete = currentKeys.slice(newCount);
+      const hasTeams = potsToDelete.some(potName => (pots[potName] || []).length > 0);
+      
+      if (hasTeams) {
+        if (!window.confirm(t('confirm_reduce_pots'))) {
+          return;
+        }
+      }
+      
+      const updatedPots = { ...pots };
+      potsToDelete.forEach(potName => {
+        delete updatedPots[potName];
+      });
+      setPots(updatedPots);
+      
+      setResults(results.filter(r => !potsToDelete.includes(r.pot)));
+    } else if (newCount > currentCount) {
+      const updatedPots = { ...pots };
+      for (let i = currentCount + 1; i <= newCount; i++) {
+        const potName = `Bombo ${i}`;
+        if (!updatedPots[potName]) {
+          updatedPots[potName] = [];
+        }
+      }
+      setPots(updatedPots);
+    }
   };
 
   const addResult = (pot, person, team) => {
@@ -270,29 +397,54 @@ function App() {
 
       <header onClick={initAudio}>
         <div className="container header-content">
-          <div className="logo" onClick={() => setActiveTab('sorteo')}>
-            <span>⚽</span> FIFA WORLD CUP 2026™ DRAFT
+          <div className="logo-group" onClick={() => setActiveTab('sorteo')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+            <div className="logo" style={{ margin: 0, padding: 0 }}>
+              <span>🎯</span> {t('logo')}
+            </div>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.45)', marginInlineStart: '38px', marginTop: '-6px', fontWeight: 600, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+              {t('logo_tagline')}
+            </span>
           </div>
           
-          <div className="nav-tabs">
-            <button
-              className={`nav-tab ${activeTab === 'sorteo' ? 'active' : ''}`}
-              onClick={() => setActiveTab('sorteo')}
-            >
-              🎯 Sorteo
-            </button>
-            <button
-              className={`nav-tab ${activeTab === 'config' ? 'active' : ''}`}
-              onClick={() => setActiveTab('config')}
-            >
-              ⚙️ Configuración
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div className="nav-tabs">
+              <button
+                className={`nav-tab ${activeTab === 'sorteo' ? 'active' : ''}`}
+                onClick={() => setActiveTab('sorteo')}
+              >
+                {t('tab_sorteo')}
+              </button>
+              <button
+                className={`nav-tab ${activeTab === 'config' ? 'active' : ''}`}
+                onClick={() => setActiveTab('config')}
+              >
+                {t('tab_config')}
+              </button>
+            </div>
+
+            <div className="lang-select-container">
+              <select
+                className="lang-select"
+                value={lang}
+                onChange={(e) => setLang(e.target.value)}
+              >
+                <option value="es">🇪🇸 ES</option>
+                <option value="en">🇺🇸 EN</option>
+                <option value="pt">🇵🇹 PT</option>
+                <option value="fr">🇫🇷 FR</option>
+                <option value="de">🇩🇪 DE</option>
+                <option value="it">🇮🇹 IT</option>
+                <option value="ar">🇸🇦 AR</option>
+              </select>
+            </div>
           </div>
         </div>
       </header>
 
       <main className="container" style={{ flexGrow: 1, padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        
+        {/* Banner Publicitario Superior */}
+        <AdBanner format="horizontal" t={t} />
+
         {activeTab === 'sorteo' ? (
           <>
             {/* Draw Dashboard */}
@@ -302,12 +454,17 @@ function App() {
               results={results}
               onDrawComplete={handleDrawComplete}
               playTick={playTick}
+              isCelebrationActive={showCelebration}
+              t={t}
+              lang={lang}
             />
 
             {/* Results Section */}
             <ResultsSection
+              pots={pots}
               results={results}
               onRemoveResult={removeResult}
+              t={t}
             />
           </>
         ) : (
@@ -321,8 +478,14 @@ function App() {
             onRemoveTeam={removeTeam}
             onResetToDefaults={resetToDefaults}
             onClearResults={clearResults}
+            onUpdatePotCount={updatePotCount}
+            onOpenWizard={() => setShowWizard(true)}
+            t={t}
           />
         )}
+
+        {/* Banner Publicitario Inferior */}
+        <AdBanner format="horizontal" t={t} />
       </main>
 
       <footer style={{
@@ -334,7 +497,7 @@ function App() {
         background: 'var(--bg-darker)'
       }}>
         <div className="container font-mono">
-          © {new Date().getFullYear()} Sorteo de Doble Ruleta Mundialista • Desarrollado por Alan Anaya Araujo ⚽
+          © {new Date().getFullYear()} {t('footer_text')}
         </div>
       </footer>
 
@@ -344,11 +507,11 @@ function App() {
         
         {drawnPair && (
           <div className="celebration-card glass-panel glow-cyan">
-            <div className="celebration-title">⚽ ¡GRUPO ASIGNADO - UNITED 2026! ⚽</div>
+            <div className="celebration-title">{t('celebration_title')}</div>
             
             <div className="winner-display">
               <div className="winner-person">{drawnPair.person}</div>
-              <div className="versus-divider">— le ha tocado a —</div>
+              <div className="versus-divider">{t('versus_divider')}</div>
               <div className="winner-team">{drawnPair.team}</div>
             </div>
 
@@ -357,11 +520,21 @@ function App() {
               onClick={handleAcceptDrawnPair}
               style={{ padding: '14px 36px', fontSize: '1.1rem', marginTop: '12px' }}
             >
-              Aceptar y Continuar
+              {t('btn_accept_continue')}
             </button>
           </div>
         )}
       </div>
+
+      {showWizard && (
+        <OnboardingWizard
+          initialParticipants={participants}
+          initialPots={pots}
+          onComplete={handleWizardComplete}
+          onClose={localStorage.getItem('raffle_setup_completed') === 'true' ? () => setShowWizard(false) : null}
+          t={t}
+        />
+      )}
     </>
   );
 }

@@ -19,6 +19,7 @@ export default function RouletteWheel({
   onActiveItemChange = () => {}, // Prop to notify parent of the current segment index under the pointer
   colorTheme = "cyan",
   playTick = () => {},
+  emptyText = "Vacío",
 }) {
   const canvasRef = useRef(null);
   const [rotation, setRotation] = useState(0);
@@ -48,8 +49,9 @@ export default function RouletteWheel({
       const N = items.length;
       const sliceAngle = (2 * Math.PI) / N;
 
-      // Target segment center
-      const centerAngle = (targetIndex + 0.5) * sliceAngle;
+      // Land anywhere from 15% to 85% of the segment wedge width to look organic and realistic
+      const randomOffset = 0.15 + Math.random() * 0.70;
+      const centerAngle = (targetIndex + randomOffset) * sliceAngle;
 
       // Pointer is at the top (1.5 * Math.PI)
       const pointerAngle = 1.5 * Math.PI;
@@ -59,11 +61,18 @@ export default function RouletteWheel({
         diff += 2 * Math.PI;
       }
 
-      // Add 8 complete rotations for a longer spin
-      const targetRot = currentRot + diff + 8 * 2 * Math.PI;
+      // Differentiate rotations and duration for left and right wheels to make them feel organic and independent
+      const isLeftWheel = colorTheme === "cyan";
+      const extraRotations = isLeftWheel
+        ? 5 + Math.floor(Math.random() * 3) // 5 to 7 full rotations
+        : 9 + Math.floor(Math.random() * 3); // 9 to 11 full rotations
+
+      const targetRot = currentRot + diff + extraRotations * 2 * Math.PI;
 
       const startTime = performance.now();
-      const duration = 7500 + Math.random() * 1000; // Increased duration: 7.5s - 8.5s
+      const duration = isLeftWheel
+        ? 4200 + Math.random() * 800  // 4.2s to 5.0s
+        : 7500 + Math.random() * 1500; // 7.5s to 9.0s
 
       const animate = (now) => {
         const elapsed = now - startTime;
@@ -139,7 +148,7 @@ export default function RouletteWheel({
       ctx.font = "16px Outfit";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("Vacío", centerX, centerY);
+      ctx.fillText(emptyText, centerX, centerY);
       return;
     }
 
