@@ -15,60 +15,60 @@ export const INITIAL_PARTICIPANTS = [
 
 export const INITIAL_POTS = {
   "Bombo 1": [
-    "Francia 🇫🇷",
-    "España 🇪🇸",
     "Argentina 🇦🇷",
-    "Inglaterra 🇬🇧",
+    "España 🇪🇸",
+    "Francia 🇫🇷",
+    "Inglaterra 🏴󠁧󠁢󠁥󠁮󠁧󠁿",
     "Portugal 🇵🇹",
     "Brasil 🇧🇷",
-    "Holanda 🇳🇱",
     "Marruecos 🇲🇦",
+    "Países Bajos 🇳🇱",
     "Bélgica 🇧🇪",
     "Alemania 🇩🇪",
     "Croacia 🇭🇷",
     "Colombia 🇨🇴"
   ],
   "Bombo 2": [
-    "Senegal 🇸🇳",
     "México 🇲🇽",
+    "Senegal 🇸🇳",
     "Estados Unidos 🇺🇸",
     "Uruguay 🇺🇾",
     "Japón 🇯🇵",
     "Suiza 🇨🇭",
     "Irán 🇮🇷",
-    "Austria 🇦🇹",
     "Turquía 🇹🇷",
+    "Austria 🇦🇹",
     "Ecuador 🇪🇨",
     "Corea del Sur 🇰🇷",
-    "Argelia 🇩🇿"
+    "Australia 🇦🇺"
   ],
   "Bombo 3": [
-    "Australia 🇦🇺",
+    "Argelia 🇩🇿",
     "Egipto 🇪🇬",
     "Canadá 🇨🇦",
     "Noruega 🇳🇴",
-    "Panamá 🇵🇦",
     "Costa de Marfil 🇨🇮",
+    "Panamá 🇵🇦",
     "Suecia 🇸🇪",
-    "Paraguay 🇵🇾",
     "República Checa 🇨🇿",
-    "Escocia 🇬🇧",
-    "Bosnia 🇧🇦",
-    "Serbia 🇷🇸"
+    "Paraguay 🇵🇾",
+    "Escocia 🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+    "RD Congo 🇨🇩",
+    "Túnez 🇹🇳"
   ],
   "Bombo 4": [
-    "Jordania 🇯🇴",
-    "Haití 🇭🇹",
-    "Ghana 🇬🇭",
+    "Uzbekistán 🇺🇿",
     "Qatar 🇶🇦",
-    "Cabo Verde 🇨🇻",
     "Irak 🇮🇶",
-    "Congo 🇨🇬",
-    "Curazao 🇨🇼",
-    "Túnez 🇹🇳",
-    "Nueva Zelanda 🇳🇿",
     "Sudáfrica 🇿🇦",
-    "Uzbekistán 🇺🇿"
+    "Arabia Saudita 🇸🇦",
+    "Jordania 🇯🇴",
+    "Bosnia y Herzegovina 🇧🇦",
+    "Cabo Verde 🇨🇻",
+    "Ghana 🇬🇭",
+    "Haití 🇭🇹",
+    "Curazao 🇨🇼",
+    "Nueva Zelanda 🇳🇿"
   ]
 };
 
@@ -80,9 +80,9 @@ export const INITIAL_RESULTS = [
   { pot: "Bombo 4", person: "Omar", team: "Qatar 🇶🇦" },
   { pot: "Bombo 4", person: "Irving", team: "Cabo Verde 🇨🇻" },
   { pot: "Bombo 4", person: "Luis", team: "Irak 🇮🇶" },
-  { pot: "Bombo 4", person: "Cevichon", team: "Congo 🇨🇬" },
+  { pot: "Bombo 4", person: "Cevichon", team: "Arabia Saudita 🇸🇦" },
   { pot: "Bombo 4", person: "Baruch", team: "Curazao 🇨🇼" },
-  { pot: "Bombo 4", person: "Santiago", team: "Túnez 🇹🇳" },
+  { pot: "Bombo 4", person: "Santiago", team: "Bosnia y Herzegovina 🇧🇦" },
   { pot: "Bombo 4", person: "David", team: "Nueva Zelanda 🇳🇿" },
   { pot: "Bombo 4", person: "Pineda", team: "Sudáfrica 🇿🇦" },
   { pot: "Bombo 4", person: "Gabri", team: "Uzbekistán 🇺🇿" }

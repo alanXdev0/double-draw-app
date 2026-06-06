@@ -11,6 +11,7 @@ const COUNTRY_COLORS = {
   Portugal: ["#006600", "#FF0000", "#FFCC00"],
   Brasil: ["#009B3A", "#FEDF00", "#002776"],
   Holanda: ["#FF4F00", "#FFFFFF", "#21468B"],
+  "Países Bajos": ["#FF4F00", "#FFFFFF", "#21468B"],
   Marruecos: ["#C1272D", "#006233", "#C1272D"],
   Bélgica: ["#000000", "#FDDA24", "#EF3340"],
   Alemania: ["#000000", "#DD0000", "#FFCC00"],
@@ -41,6 +42,8 @@ const COUNTRY_COLORS = {
   "República Checa": ["#11457E", "#FFFFFF", "#D91A30"],
   Escocia: ["#005EB8", "#FFFFFF", "#005EB8"],
   Bosnia: ["#00209F", "#FFCC00", "#00209F"],
+  "Bosnia y Herzegovina": ["#00209F", "#FFCC00", "#00209F"],
+  "RD Congo": ["#007FFF", "#FCD116", "#E10021"],
   Serbia: ["#C6363C", "#0C4076", "#FFFFFF"],
 
   Jordania: ["#000000", "#FFFFFF", "#C60C30"],
@@ -55,6 +58,7 @@ const COUNTRY_COLORS = {
   "Nueva Zelanda": ["#000000", "#FFFFFF", "#000000"],
   Sudáfrica: ["#007A4D", "#FFFFFF", "#E31B23"],
   Uzbekistán: ["#0099B5", "#FFFFFF", "#1EB53A"],
+  "Arabia Saudita": ["#006C35", "#FFFFFF", "#006C35"],
 };
 
 // Helper to strip flag emojis and clean country strings for map lookup

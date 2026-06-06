@@ -13,18 +13,26 @@ function App() {
   // Sound Hook
   const { playTick, playWin, playWhistle, initAudio } = useAudio();
 
+  const CURRENT_VERSION = 'v2_pots';
+
   // State loaded from localStorage or fallback to defaults
   const [participants, setParticipants] = useState(() => {
+    const version = localStorage.getItem('raffle_version');
+    if (version !== CURRENT_VERSION) return INITIAL_PARTICIPANTS;
     const saved = localStorage.getItem('raffle_participants');
     return saved ? JSON.parse(saved) : INITIAL_PARTICIPANTS;
   });
 
   const [pots, setPots] = useState(() => {
+    const version = localStorage.getItem('raffle_version');
+    if (version !== CURRENT_VERSION) return INITIAL_POTS;
     const saved = localStorage.getItem('raffle_pots');
     return saved ? JSON.parse(saved) : INITIAL_POTS;
   });
 
   const [results, setResults] = useState(() => {
+    const version = localStorage.getItem('raffle_version');
+    if (version !== CURRENT_VERSION) return INITIAL_RESULTS;
     const saved = localStorage.getItem('raffle_results');
     return saved ? JSON.parse(saved) : INITIAL_RESULTS;
   });
@@ -39,6 +47,10 @@ function App() {
   const confettiAnimRef = useRef(null);
 
   // Persist states to localStorage
+  useEffect(() => {
+    localStorage.setItem('raffle_version', CURRENT_VERSION);
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('raffle_participants', JSON.stringify(participants));
   }, [participants]);
