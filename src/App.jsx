@@ -397,10 +397,11 @@ function App() {
       <header onClick={initAudio}>
         <div className="container header-content">
           <div className="logo-group" onClick={() => setActiveTab('sorteo')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <div className="logo" style={{ margin: 0, padding: 0 }}>
-              <span>🎯</span> {t('logo')}
+            <div className="logo" style={{ margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <img src="/sports_draw_logo.png" alt="Duo Raffle Logo" style={{ height: '34px', width: '34px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))' }} />
+              {t('logo')}
             </div>
-            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.45)', marginInlineStart: '38px', marginTop: '-6px', fontWeight: 600, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.45)', marginInlineStart: '42px', marginTop: '-4px', fontWeight: 600, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
               {t('logo_tagline')}
             </span>
           </div>
