@@ -8,7 +8,6 @@ import {
 import DrawDashboard from './components/DrawDashboard';
 import SetupPanel from './components/SetupPanel';
 import ResultsSection from './components/ResultsSection';
-import AdBanner from './components/AdBanner';
 import OnboardingWizard from './components/OnboardingWizard';
 import { getTranslationHelper } from './data/translations';
 
@@ -442,9 +441,6 @@ function App() {
       </header>
 
       <main className="container" style={{ flexGrow: 1, padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {/* Banner Publicitario Superior */}
-        <AdBanner format="horizontal" t={t} />
-
         {activeTab === 'sorteo' ? (
           <>
             {/* Draw Dashboard */}
@@ -483,9 +479,6 @@ function App() {
             t={t}
           />
         )}
-
-        {/* Banner Publicitario Inferior */}
-        <AdBanner format="horizontal" t={t} />
       </main>
 
       <footer style={{
