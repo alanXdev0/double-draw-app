@@ -70,10 +70,7 @@ export default function ResultsSection({
             <div key={potName} className="glass-panel pot-results-card">
               <div className="pot-header">
                 <span style={{ fontWeight: 700, fontSize: '0.92rem' }}>
-                  {potName === 'Bombo 1' && 'Bombo 1 (Cabezas)'}
-                  {potName === 'Bombo 2' && 'Bombo 2 (Fuerza A)'}
-                  {potName === 'Bombo 3' && 'Bombo 3 (Fuerza B)'}
-                  {potName === 'Bombo 4' && 'Bombo 4 (Presets)'}
+                  {potName}
                 </span>
                 <span className={badgeClass}>{potResults.length} / 12</span>
               </div>
