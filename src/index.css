@@ -401,8 +401,8 @@ header {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-  color: var(--bg-darker);
+  background: linear-gradient(135deg, var(--cyan-primary) 0%, #3b82f6 100%);
+  color: #ffffff;
   border: none;
   padding: 10px 20px;
   border-radius: 12px;
@@ -416,7 +416,7 @@ header {
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(0, 242, 254, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 86, 179, 0.35);
 }
 
 .btn-secondary {

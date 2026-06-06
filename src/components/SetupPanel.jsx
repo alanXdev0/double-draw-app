@@ -246,7 +246,7 @@ export default function SetupPanel({
             type="button"
             className="btn-secondary"
             onClick={onOpenWizard}
-            style={{ borderColor: 'rgba(0, 242, 254, 0.4)', color: '#f8fafc', background: 'rgba(0, 242, 254, 0.05)' }}
+            style={{ borderColor: 'rgba(0, 86, 179, 0.35)', color: 'var(--cyan-primary)', background: 'rgba(0, 86, 179, 0.06)' }}
           >
             {t('setup_btn_open_wizard')}
           </button>
@@ -255,7 +255,7 @@ export default function SetupPanel({
             type="button"
             className="btn-secondary"
             onClick={confirmReset}
-            style={{ borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f8fafc', background: 'rgba(239, 68, 68, 0.05)' }}
+            style={{ borderColor: 'rgba(217, 29, 78, 0.35)', color: 'var(--magenta-primary)', background: 'rgba(217, 29, 78, 0.06)' }}
           >
             {t('setup_btn_reset_defaults')}
           </button>
