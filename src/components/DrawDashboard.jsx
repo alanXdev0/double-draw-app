@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import RouletteWheel from "./RouletteWheel";
 import playerSvg from "../assets/player.svg";
-import InterstitialAd from "./InterstitialAd";
 
 // Vibrant neon color palettes for active glows during spins
 const RANDOM_GLOW_COLORS = [
@@ -39,7 +38,6 @@ export default function DrawDashboard({
     return keys.includes("Bombo 1") ? "Bombo 1" : (keys[0] || "Bombo 1");
   });
   const [isSpinning, setIsSpinning] = useState(false);
-  const [showInterstitial, setShowInterstitial] = useState(false);
   const [leftTargetIdx, setLeftTargetIdx] = useState(null);
   const [rightTargetIdx, setRightTargetIdx] = useState(null);
 
@@ -83,20 +81,7 @@ export default function DrawDashboard({
     )
       return;
 
-    // Check if it's the first spin of the session
-    const adShown = sessionStorage.getItem("raffle_session_ad_shown");
-    if (adShown !== "true") {
-      setShowInterstitial(true);
-      return;
-    }
-
     startSpinning();
-  };
-
-  const handleCloseAd = () => {
-    sessionStorage.setItem("raffle_session_ad_shown", "true");
-    setShowInterstitial(false);
-    startSpinning(); // Auto-start spin after closing the ad
   };
 
   const spinCompleteCountRef = useRef(0);
@@ -402,9 +387,6 @@ export default function DrawDashboard({
         </div>
       </div>
 
-      {showInterstitial && (
-        <InterstitialAd onClose={handleCloseAd} t={t} />
-      )}
     </div>
   );
 }
