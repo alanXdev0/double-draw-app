@@ -32,6 +32,7 @@ export default function DrawDashboard({
   isCelebrationActive = false,
   t,
   lang,
+  onOpenWizard,
 }) {
   const [selectedPot, setSelectedPot] = useState(() => {
     const keys = Object.keys(pots);
@@ -219,6 +220,43 @@ export default function DrawDashboard({
             </select>
           </div>
         </div>
+
+        {/* Suggestion Banner to launch Wizard manually */}
+        {onOpenWizard && (
+          <div
+            style={{
+              width: "100%",
+              background: "var(--cyan-bg)",
+              border: "1px solid var(--cyan-border)",
+              borderRadius: "12px",
+              padding: "12px 20px",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "12px",
+              flexWrap: "wrap",
+            }}
+          >
+            <span
+              style={{
+                fontSize: "0.9rem",
+                color: "var(--text-secondary)",
+                fontWeight: 500,
+              }}
+            >
+              💡 {lang === "es"
+                ? "¿Quieres crear tu propio sorteo con tus nombres y equipos?"
+                : "Want to create your own draw with your names and teams?"}
+            </span>
+            <button
+              onClick={onOpenWizard}
+              className="btn-primary"
+              style={{ padding: "6px 14px", fontSize: "0.85rem", cursor: "pointer" }}
+            >
+              🪄 {lang === "es" ? "Asistente de Configuración" : "Setup Wizard"}
+            </button>
+          </div>
+        )}
 
         {/* Info Banner */}
         <div

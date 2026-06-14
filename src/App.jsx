@@ -10,6 +10,7 @@ import SetupPanel from './components/SetupPanel';
 import ResultsSection from './components/ResultsSection';
 import OnboardingWizard from './components/OnboardingWizard';
 import { getTranslationHelper } from './data/translations';
+import GuideSection from './components/GuideSection';
 
 function App() {
   // Sound Hook
@@ -62,14 +63,7 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [drawnPair, setDrawnPair] = useState(null);
 
-  const [showWizard, setShowWizard] = useState(() => {
-    const version = localStorage.getItem('raffle_version');
-    if (version !== CURRENT_VERSION) {
-      localStorage.removeItem('raffle_setup_completed');
-      return true;
-    }
-    return localStorage.getItem('raffle_setup_completed') !== 'true';
-  });
+  const [showWizard, setShowWizard] = useState(false);
 
   const confettiCanvasRef = useRef(null);
   const confettiAnimRef = useRef(null);
@@ -240,6 +234,7 @@ function App() {
     localStorage.removeItem('raffle_participants');
     localStorage.removeItem('raffle_pots');
     localStorage.removeItem('raffle_results');
+    localStorage.removeItem('raffle_setup_completed');
   };
 
   const clearResults = () => {
@@ -420,6 +415,12 @@ function App() {
               >
                 {t('tab_config')}
               </button>
+              <button
+                className={`nav-tab ${activeTab === 'guia' ? 'active' : ''}`}
+                onClick={() => setActiveTab('guia')}
+              >
+                {t('tab_guide')}
+              </button>
             </div>
 
             <div className="lang-select-container">
@@ -442,7 +443,7 @@ function App() {
       </header>
 
       <main className="container" style={{ flexGrow: 1, padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
-        {activeTab === 'sorteo' ? (
+        {activeTab === 'sorteo' && (
           <>
             {/* Draw Dashboard */}
             <DrawDashboard
@@ -454,6 +455,7 @@ function App() {
               isCelebrationActive={showCelebration}
               t={t}
               lang={lang}
+              onOpenWizard={() => setShowWizard(true)}
             />
 
             {/* Results Section */}
@@ -464,7 +466,9 @@ function App() {
               t={t}
             />
           </>
-        ) : (
+        )}
+
+        {activeTab === 'config' && (
           /* Settings / Configuration Panel */
           <SetupPanel
             participants={participants}
@@ -480,6 +484,11 @@ function App() {
             t={t}
           />
         )}
+
+        {activeTab === 'guia' && (
+          /* Interactive Guide & FAQ Section */
+          <GuideSection lang={lang} />
+        )}
       </main>
 
       <footer style={{
@@ -490,8 +499,23 @@ function App() {
         fontSize: '0.85rem',
         background: 'var(--bg-darker)'
       }}>
-        <div className="container font-mono">
-          © {new Date().getFullYear()} {t('footer_text')}
+        <div className="container font-mono" style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
+          <div>
+            © {new Date().getFullYear()} {t('footer_text')}
+          </div>
+          <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', marginTop: '4px' }}>
+            <a href="/politica-de-privacidad.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+              {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
+            </a>
+            <span style={{ color: 'var(--card-border)' }}>|</span>
+            <a href="/terminos-de-servicio.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+              {lang === 'es' ? 'Términos de Servicio' : 'Terms of Service'}
+            </a>
+            <span style={{ color: 'var(--card-border)' }}>|</span>
+            <a href="/contacto.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+              {lang === 'es' ? 'Contacto y Acerca de' : 'Contact & About'}
+            </a>
+          </div>
         </div>
       </footer>
 
@@ -522,10 +546,10 @@ function App() {
 
       {showWizard && (
         <OnboardingWizard
-          initialParticipants={participants}
-          initialPots={pots}
+          initialParticipants={localStorage.getItem('raffle_setup_completed') === 'true' ? participants : []}
+          initialPots={localStorage.getItem('raffle_setup_completed') === 'true' ? pots : {}}
           onComplete={handleWizardComplete}
-          onClose={localStorage.getItem('raffle_setup_completed') === 'true' ? () => setShowWizard(false) : null}
+          onClose={() => setShowWizard(false)}
           t={t}
         />
       )}

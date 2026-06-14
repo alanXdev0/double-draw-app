@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contacto y Acerca de - Duo Raffle</title>
+    <link rel="icon" type="image/png" href="/sports_draw_logo.png" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-dark: #f8fafc;
+        --bg-darker: #f1f5f9;
+        --card-bg: rgba(255, 255, 255, 0.8);
+        --card-border: rgba(15, 23, 42, 0.08);
+        --text-primary: #0f172a;
+        --text-secondary: #475569;
+        --text-muted: #64748b;
+        --cyan-primary: #0056b3;
+        --cyan-glow: rgba(0, 86, 179, 0.15);
+        --cyan-bg: rgba(0, 86, 179, 0.06);
+        --cyan-border: rgba(0, 86, 179, 0.15);
+        --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: var(--font-sans);
+        background-color: var(--bg-dark);
+        background: radial-gradient(
+          circle at 50% 0%,
+          #ebf8f2 0%,
+          #f0f4fa 70%,
+          #e2e8f0 100%
+        );
+        background-attachment: fixed;
+        color: var(--text-primary);
+        line-height: 1.6;
+        padding: 40px 20px;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 0 auto;
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid var(--bg-darker);
+        padding-bottom: 20px;
+      }
+
+      .logo-img {
+        height: 48px;
+        width: 48px;
+        object-fit: contain;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--cyan-primary);
+      }
+
+      h2 {
+        font-size: 1.35rem;
+        font-weight: 700;
+        margin-top: 30px;
+        margin-bottom: 12px;
+        color: var(--text-primary);
+      }
+
+      p {
+        margin-bottom: 16px;
+        color: var(--text-secondary);
+        font-size: 1rem;
+      }
+
+      .info-card {
+        background: var(--cyan-bg);
+        border: 1px solid var(--cyan-border);
+        border-radius: 12px;
+        padding: 24px;
+        margin: 24px 0;
+      }
+
+      .info-card h3 {
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: var(--cyan-primary);
+      }
+
+      a {
+        color: var(--cyan-primary);
+        text-decoration: none;
+        font-weight: 500;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .contact-details {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 1.05rem;
+      }
+
+      .contact-label {
+        font-weight: 600;
+        min-width: 80px;
+        color: var(--text-primary);
+      }
+
+      .footer-back {
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px solid var(--bg-darker);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .btn-back {
+        display: inline-block;
+        background: linear-gradient(
+          135deg,
+          var(--cyan-primary) 0%,
+          #3b82f6 100%
+        );
+        color: white;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        box-shadow: 0 4px 15px rgba(0, 86, 179, 0.2);
+        transition: all 0.2s ease;
+      }
+
+      .btn-back:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 86, 179, 0.3);
+        text-decoration: none;
+      }
+
+      .last-updated {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <img
+          src="/sports_draw_logo.png"
+          alt="Duo Raffle Logo"
+          class="logo-img"
+        />
+        <h1>Contacto y Acerca de</h1>
+      </div>
+
+      <h2>Acerca de Duo Raffle</h2>
+      <p>
+        <strong>Duo Raffle</strong> es un simulador de sorteos interactivo
+        premium que utiliza un sistema único de ruleta doble para emparejar
+        participantes con equipos, bombos o premios en tiempo real. Está
+        diseñado especialmente para organizar sorteos balanceados de torneos de
+        fútbol (como la UEFA Champions League, Copas Mundiales y torneos
+        locales), ligas e-sports y sorteos generales.
+      </p>
+      <p>
+        Nuestra misión es hacer que el proceso de selección y emparejamiento sea
+        dinámico, divertido y visualmente espectacular, garantizando la equidad
+        gracias a la aleatoriedad en el cliente.
+      </p>
+
+      <div class="info-card">
+        <h3>Información del Desarrollador</h3>
+        <p>
+          Este proyecto es desarrollado y mantenido por
+          <strong>Alan Anaya Araujo</strong>.
+        </p>
+        <p>
+          Si deseas reportar un error, tienes sugerencias para mejorar el
+          simulador o estás interesado en integraciones de marca/colaboración,
+          ponte en contacto con nosotros.
+        </p>
+      </div>
+
+      <h2>Póngase en Contacto</h2>
+      <p>
+        Valoramos la comunicación con nuestros usuarios y respondemos a todas
+        las dudas de soporte en un plazo de 24 a 48 horas.
+      </p>
+
+      <div class="contact-details">
+        <div class="contact-item">
+          <span class="contact-label">Email:</span>
+          <a href="mailto:contacto@duoraffle.com">contacto@duoraffle.com</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-label">Soporte:</span>
+          <a href="mailto:alan.anaya.araujo@gmail.com">soporte@duoraffle.com</a>
+        </div>
+        <div class="contact-item">
+          <span class="contact-label">Sitio Web:</span>
+          <a href="https://duoraffle.com">duoraffle.com</a>
+        </div>
+      </div>
+
+      <div class="footer-back">
+        <a href="/" class="btn-back">⬅ Volver al Simulador</a>
+        <span class="last-updated">Última actualización: Junio de 2026</span>
+      </div>
+    </div>
+  </body>
+</html>
