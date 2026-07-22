@@ -12,6 +12,38 @@ import OnboardingWizard from './components/OnboardingWizard';
 import { getTranslationHelper } from './data/translations';
 import GuideSection from './components/GuideSection';
 
+function BuyMeACoffeeButton({ fallbackUrl, label }) {
+  const buttonHostRef = useRef(null);
+
+  useEffect(() => {
+    const host = buttonHostRef.current;
+    if (!host) return undefined;
+
+    if (typeof window.bmcBtnWidget === 'function') {
+      host.innerHTML = window.bmcBtnWidget(
+        'Buy me a coffee',
+        'alanxdev',
+        '#FFDD00',
+        '',
+        'Cookie',
+        '#000000',
+        '#000000',
+        '#ffffff',
+      );
+    }
+
+    return undefined;
+  }, []);
+
+  return (
+    <div className="bmc-button-host" ref={buttonHostRef}>
+      <a className="support-button" href={fallbackUrl} target="_blank" rel="noopener noreferrer">
+        {label} <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  );
+}
+
 function App() {
   // Sound Hook
   const { playTick, playWin, playWhistle, initAudio } = useAudio();
@@ -52,6 +84,7 @@ function App() {
   });
 
   const t = getTranslationHelper(lang);
+  const buyMeACoffeeUrl = import.meta.env.VITE_BUY_ME_A_COFFEE_URL?.trim() || 'https://buymeacoffee.com/alanxdev';
 
   useEffect(() => {
     localStorage.setItem('raffle_lang', lang);
@@ -391,12 +424,12 @@ function App() {
 
       <header onClick={initAudio}>
         <div className="container header-content">
-          <div className="logo-group" onClick={() => setActiveTab('sorteo')} style={{ cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-            <div className="logo" style={{ margin: 0, padding: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <img src="/sports_draw_logo.png" alt="Duo Raffle Logo" style={{ height: '34px', width: '34px', objectFit: 'contain', filter: 'drop-shadow(0 2px 8px rgba(0, 0, 0, 0.15))' }} />
+          <div className="logo-group" onClick={() => setActiveTab('sorteo')}>
+            <div className="logo">
+              <img src="/sports_draw_logo.png" alt="Duo Raffle Logo" />
               {t('logo')}
             </div>
-            <span style={{ fontSize: '0.65rem', color: 'rgba(255, 255, 255, 0.45)', marginInlineStart: '42px', marginTop: '-4px', fontWeight: 600, letterSpacing: '0.8px', textTransform: 'uppercase' }}>
+            <span className="logo-tagline">
               {t('logo_tagline')}
             </span>
           </div>
@@ -442,7 +475,7 @@ function App() {
         </div>
       </header>
 
-      <main className="container" style={{ flexGrow: 1, padding: '32px 24px', display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      <main className="container app-main">
         {activeTab === 'sorteo' && (
           <>
             {/* Draw Dashboard */}
@@ -491,31 +524,33 @@ function App() {
         )}
       </main>
 
-      <footer style={{
-        borderTop: '1px solid var(--card-border)',
-        padding: '24px 0',
-        textAlign: 'center',
-        color: 'var(--text-secondary)',
-        fontSize: '0.85rem',
-        background: 'var(--bg-darker)'
-      }}>
-        <div className="container font-mono" style={{ display: 'flex', flexDirection: 'column', gap: '8px', alignItems: 'center' }}>
-          <div>
-            © {new Date().getFullYear()} {t('footer_text')}
-          </div>
-          <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', marginTop: '4px' }}>
-            <a href="/politica-de-privacidad.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+      <footer className="site-footer">
+        <div className="container footer-content">
+          <section className="support-card" aria-label={t('support_title')}>
+            <div className="support-icon" aria-hidden="true">☕</div>
+            <div className="support-copy">
+              <span className="support-eyebrow">BUY ME A COFFEE</span>
+              <strong>{t('support_title')}</strong>
+              <p>{t('support_description')}</p>
+            </div>
+            <BuyMeACoffeeButton fallbackUrl={buyMeACoffeeUrl} label={t('support_button')} />
+          </section>
+          <div className="footer-meta">
+            <div>© {new Date().getFullYear()} {t('footer_text')}</div>
+            <div className="footer-links">
+            <a href="/politica-de-privacidad.html" target="_blank" rel="noopener noreferrer">
               {lang === 'es' ? 'Política de Privacidad' : 'Privacy Policy'}
             </a>
-            <span style={{ color: 'var(--card-border)' }}>|</span>
-            <a href="/terminos-de-servicio.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+            <span>|</span>
+            <a href="/terminos-de-servicio.html" target="_blank" rel="noopener noreferrer">
               {lang === 'es' ? 'Términos de Servicio' : 'Terms of Service'}
             </a>
-            <span style={{ color: 'var(--card-border)' }}>|</span>
-            <a href="/contacto.html" style={{ color: 'var(--cyan-primary)', textDecoration: 'none' }} target="_blank" rel="noopener noreferrer">
+            <span>|</span>
+            <a href="/contacto.html" target="_blank" rel="noopener noreferrer">
               {lang === 'es' ? 'Contacto y Acerca de' : 'Contact & About'}
             </a>
           </div>
+        </div>
         </div>
       </footer>
 

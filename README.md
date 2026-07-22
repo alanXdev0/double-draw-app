@@ -1,5 +1,15 @@
 # React + Vite
 
+## Donations with Buy Me a Coffee
+
+The footer includes the official Buy Me a Coffee button for `alanxdev`, plus a direct-link fallback. The profile URL is already configured in the app. Copy `.env.example` to `.env.local` only if you need to override it:
+
+```bash
+VITE_BUY_ME_A_COFFEE_URL=https://buymeacoffee.com/alanxdev
+```
+
+Restart the Vite server after changing the variable.
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

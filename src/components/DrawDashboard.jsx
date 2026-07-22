@@ -162,31 +162,13 @@ export default function DrawDashboard({
   const activeText = flagColors[0] || "#ffffff";
 
   return (
-    <div
-      className="glass-panel"
-      style={{ padding: "24px", position: "relative" }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: "20px",
-          alignItems: "center",
-        }}
-      >
+    <div className="glass-panel draw-dashboard">
+      <div className="draw-dashboard-content">
         {/* Pot Selector Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            width: "100%",
-            alignItems: "center",
-            flexWrap: "wrap",
-            gap: "12px",
-          }}
-        >
-          <div style={{ textAlign: "left" }}>
-            <h1 style={{ fontSize: "1.5rem", fontWeight: 800, margin: 0 }}>
+        <div className="dashboard-heading">
+          <div>
+            <span className="section-kicker">MATCH CENTER</span>
+            <h1>
               {t("dashboard_title")}
             </h1>
           </div>
@@ -223,27 +205,8 @@ export default function DrawDashboard({
 
         {/* Suggestion Banner to launch Wizard manually */}
         {onOpenWizard && (
-          <div
-            style={{
-              width: "100%",
-              background: "var(--cyan-bg)",
-              border: "1px solid var(--cyan-border)",
-              borderRadius: "12px",
-              padding: "12px 20px",
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "12px",
-              flexWrap: "wrap",
-            }}
-          >
-            <span
-              style={{
-                fontSize: "0.9rem",
-                color: "var(--text-secondary)",
-                fontWeight: 500,
-              }}
-            >
+          <div className="setup-nudge">
+            <span>
               💡 {lang === "es"
                 ? "¿Quieres crear tu propio sorteo con tus nombres y equipos?"
                 : "Want to create your own draw with your names and teams?"}
@@ -259,20 +222,7 @@ export default function DrawDashboard({
         )}
 
         {/* Info Banner */}
-        <div
-          style={{
-            width: "100%",
-            background: "rgba(255, 255, 255, 0.02)",
-            border: "1px solid rgba(255, 255, 255, 0.05)",
-            borderRadius: "12px",
-            padding: "12px 20px",
-            display: "flex",
-            justifyContent: "space-around",
-            fontSize: "0.9rem",
-            color: "var(--text-secondary)",
-            fontFamily: "var(--font-mono)",
-          }}
-        >
+          <div className="draw-stats">
           <div>
             {t("participants_free")}{" "}
             <span style={{ color: "var(--cyan-primary)", fontWeight: 700 }}>

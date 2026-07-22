@@ -138,13 +138,13 @@ export default function RouletteWheel({
       // Placeholder wheel
       ctx.beginPath();
       ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-      ctx.fillStyle = "rgba(255, 255, 255, 0.03)";
+      ctx.fillStyle = "rgba(94, 229, 255, 0.08)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+      ctx.strokeStyle = "rgba(164, 190, 219, 0.24)";
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.fillStyle = "rgba(244, 248, 255, 0.52)";
       ctx.font = "16px Outfit";
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
@@ -166,9 +166,9 @@ export default function RouletteWheel({
 
       // Alternate color palettes (World Cup Light Theme)
       if (colorTheme === "cyan") {
-        ctx.fillStyle = i % 2 === 0 ? "#e0f2fe" : "#ffffff"; // Light sky blue & white
+        ctx.fillStyle = i % 2 === 0 ? "#173d61" : "#102c49";
       } else {
-        ctx.fillStyle = i % 2 === 0 ? "#fef3c7" : "#ffffff"; // Light gold & white
+        ctx.fillStyle = i % 2 === 0 ? "#5a2e22" : "#3f2230";
       }
       ctx.fill();
 
@@ -194,7 +194,7 @@ export default function RouletteWheel({
       );
 
       ctx.font = `bold ${fontSize}px 'Helvetica', 'Arial', monospace`;
-      ctx.fillStyle = "#0f172a"; // Dark Slate for readability on light wedges
+      ctx.fillStyle = "#f4f8ff";
 
       const text = cleanText(items[i]);
       let lines = [];
@@ -249,7 +249,7 @@ export default function RouletteWheel({
     // Draw inner metal cap
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius * 0.18, 0, 2 * Math.PI);
-    ctx.fillStyle = "#f8fafc"; // Light gray instead of #0f172a
+    ctx.fillStyle = "#07111f";
     ctx.fill();
     ctx.strokeStyle =
       colorTheme === "cyan" ? "var(--cyan-primary)" : "var(--magenta-primary)";
