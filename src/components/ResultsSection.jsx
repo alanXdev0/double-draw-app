@@ -4,6 +4,7 @@ export default function ResultsSection({
   pots = {},
   results = [],
   onRemoveResult = () => {},
+  onClearResults = () => {},
   t
 }) {
   const potsList = Object.keys(pots).sort((a, b) => {
@@ -46,6 +47,13 @@ export default function ResultsSection({
       });
   };
 
+  const resetAssignments = () => {
+    if (results.length === 0) return;
+    if (window.confirm(t('results_confirm_reset'))) {
+      onClearResults();
+    }
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', marginTop: '24px' }}>
       
@@ -58,13 +66,22 @@ export default function ResultsSection({
           </p>
         </div>
         
-        <button
-          className="btn-secondary font-mono"
-          onClick={copyToClipboard}
-          style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.9rem' }}
-        >
-          {t('results_btn_copy')}
-        </button>
+        <div className="results-actions">
+          <button
+            className="btn-secondary font-mono"
+            onClick={copyToClipboard}
+          >
+            {t('results_btn_copy')}
+          </button>
+          <button
+            type="button"
+            className="btn-danger"
+            onClick={resetAssignments}
+            disabled={results.length === 0}
+          >
+            {t('results_btn_reset')}
+          </button>
+        </div>
       </div>
 
       {/* Grid of Pots Results */}

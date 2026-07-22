@@ -114,6 +114,7 @@ function App() {
   const [showCelebration, setShowCelebration] = useState(false);
   const [drawnPair, setDrawnPair] = useState(null);
   const [completionDraw, setCompletionDraw] = useState(null);
+  const [previousAssignments, setPreviousAssignments] = useState([]);
 
   const [showWizard, setShowWizard] = useState(false);
 
@@ -124,6 +125,7 @@ function App() {
     setParticipants(wizardParticipants);
     setPots(wizardPots);
     setResults([]); // Clear results on new configuration
+    setPreviousAssignments([]);
     localStorage.setItem('raffle_participants', JSON.stringify(wizardParticipants));
     localStorage.setItem('raffle_pots', JSON.stringify(wizardPots));
     localStorage.setItem('raffle_results', JSON.stringify([]));
@@ -283,6 +285,7 @@ function App() {
     setParticipants(INITIAL_PARTICIPANTS);
     setPots(INITIAL_POTS);
     setResults(INITIAL_RESULTS);
+    setPreviousAssignments([]);
     localStorage.removeItem('raffle_participants');
     localStorage.removeItem('raffle_pots');
     localStorage.removeItem('raffle_results');
@@ -290,7 +293,11 @@ function App() {
   };
 
   const clearResults = () => {
+    setPreviousAssignments(results);
     setResults([]);
+    setDrawnPair(null);
+    setShowCelebration(false);
+    setCompletionDraw(null);
   };
 
   // Draw complete handler
@@ -514,6 +521,7 @@ function App() {
               onDrawComplete={handleDrawComplete}
               playTick={playTick}
               isCelebrationActive={showCelebration}
+              previousAssignments={previousAssignments}
               t={t}
               lang={lang}
               onOpenWizard={() => setShowWizard(true)}
@@ -524,6 +532,7 @@ function App() {
               pots={pots}
               results={results}
               onRemoveResult={removeResult}
+              onClearResults={clearResults}
               t={t}
             />
           </>

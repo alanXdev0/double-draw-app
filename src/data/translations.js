@@ -74,6 +74,8 @@ export const TRANSLATIONS = {
     results_subtitle:
       "Los ganadores sorteados se retiran de las ruletas y se listan aquí.",
     results_btn_copy: "📋 Copiar Resultados",
+    results_btn_reset: "↺ Reiniciar elegidos",
+    results_confirm_reset: "¿Quieres reiniciar todos los equipos ya asignados? Las ruletas volverán a llenarse.",
     results_copied: "¡Resultados copiados al portapapeles!",
     results_no_results: "No hay resultados para copiar.",
     results_clipboard_header: "🏆 RESULTADOS DEL DRAFT 🏆\n\n",
@@ -224,6 +226,8 @@ export const TRANSLATIONS = {
     results_subtitle:
       "Drawn winners are removed from the wheels and listed here.",
     results_btn_copy: "📋 Copy Results",
+    results_btn_reset: "↺ Reset selections",
+    results_confirm_reset: "Do you want to reset all assigned teams? The wheels will be refilled.",
     results_copied: "Results copied to clipboard!",
     results_no_results: "No results to copy.",
     results_clipboard_header: "🏆 DRAFT RESULTS 🏆\n\n",

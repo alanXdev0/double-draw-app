@@ -23,18 +23,72 @@ const getGlowColors = (teamName) => {
   return RANDOM_GLOW_COLORS[index];
 };
 
-const duplicateAndShuffle = (items) => {
-  const doubledItems = [...items, ...items];
+const shuffle = (items) => {
+  const shuffledItems = [...items];
 
-  for (let index = doubledItems.length - 1; index > 0; index -= 1) {
+  for (let index = shuffledItems.length - 1; index > 0; index -= 1) {
     const randomIndex = Math.floor(Math.random() * (index + 1));
-    [doubledItems[index], doubledItems[randomIndex]] = [
-      doubledItems[randomIndex],
-      doubledItems[index],
+    [shuffledItems[index], shuffledItems[randomIndex]] = [
+      shuffledItems[randomIndex],
+      shuffledItems[index],
     ];
   }
 
-  return doubledItems;
+  return shuffledItems;
+};
+
+const duplicateAndShuffle = (items) => {
+  if (items.length < 2) return [...items, ...items];
+  if (items.length === 2) {
+    const pair = shuffle(items);
+    return [...pair, ...pair];
+  }
+
+  const doubledItems = [...items, ...items];
+  const hasAdjacentCopies = (sequence) => sequence.some(
+    (item, index) => item === sequence[(index + 1) % sequence.length],
+  );
+
+  // Keep re-shuffling until duplicate labels are separated, including between
+  // the final and first slice of the circular roulette.
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    const sequence = shuffle(doubledItems);
+    if (!hasAdjacentCopies(sequence)) return sequence;
+  }
+
+  // A deterministic fallback guarantees separation if random attempts fail.
+  const firstRound = shuffle(items);
+  const secondRound = firstRound.flatMap((item, index) => (
+    index % 2 === 0 && index + 1 < firstRound.length
+      ? [firstRound[index + 1], item]
+      : index % 2 === 1
+        ? []
+        : [item]
+  ));
+  return firstRound.concat(secondRound);
+};
+
+const canCompleteWithDifferentTeams = (people, teams, previousTeamByPerson) => {
+  if (people.length === 0) return true;
+
+  const person = people.reduce((mostConstrained, candidate) => {
+    const candidateOptions = teams.filter(
+      (team) => team !== previousTeamByPerson.get(candidate),
+    ).length;
+    const currentOptions = teams.filter(
+      (team) => team !== previousTeamByPerson.get(mostConstrained),
+    ).length;
+    return candidateOptions < currentOptions ? candidate : mostConstrained;
+  }, people[0]);
+
+  return teams.some((team) => (
+    team !== previousTeamByPerson.get(person)
+    && canCompleteWithDifferentTeams(
+      people.filter((candidate) => candidate !== person),
+      teams.filter((candidate) => candidate !== team),
+      previousTeamByPerson,
+    )
+  ));
 };
 
 export default function DrawDashboard({
@@ -44,6 +98,7 @@ export default function DrawDashboard({
   onDrawComplete = () => {},
   playTick = () => {},
   isCelebrationActive = false,
+  previousAssignments = [],
   t,
   lang,
   onOpenWizard,
@@ -92,9 +147,22 @@ export default function DrawDashboard({
     const chosenPerson = remainingParticipants[Math.floor(
       Math.random() * remainingParticipants.length,
     )];
-    const chosenTeam = remainingTeams[Math.floor(
-      Math.random() * remainingTeams.length,
-    )];
+    const previousTeamByPerson = new Map(
+      previousAssignments
+        .filter((assignment) => assignment.pot === selectedPot)
+        .map((assignment) => [assignment.person, assignment.team]),
+    );
+    const availableTeams = shuffle(remainingTeams).filter((team) => {
+      if (team === previousTeamByPerson.get(chosenPerson)) return false;
+
+      return canCompleteWithDifferentTeams(
+        remainingParticipants.filter((person) => person !== chosenPerson),
+        remainingTeams.filter((candidate) => candidate !== team),
+        previousTeamByPerson,
+      );
+    });
+    const chosenTeam = availableTeams[0]
+      ?? remainingTeams[Math.floor(Math.random() * remainingTeams.length)];
     const personIndexes = displayParticipants
       .map((person, index) => person === chosenPerson ? index : -1)
       .filter((index) => index >= 0);
