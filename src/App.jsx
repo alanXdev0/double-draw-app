@@ -1,9 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 import { useAudio } from './hooks/useAudio';
 import { 
   INITIAL_PARTICIPANTS, 
   INITIAL_POTS, 
-  INITIAL_RESULTS 
+  INITIAL_RESULTS,
+  EXPANDED_DEMO_PARTICIPANTS,
+  EXPANDED_DEMO_POTS,
 } from './data/initialData';
 import DrawDashboard from './components/DrawDashboard';
 import SetupPanel from './components/SetupPanel';
@@ -11,6 +15,7 @@ import ResultsSection from './components/ResultsSection';
 import OnboardingWizard from './components/OnboardingWizard';
 import { getTranslationHelper } from './data/translations';
 import GuideSection from './components/GuideSection';
+import CompletionModal from './components/CompletionModal';
 
 function BuyMeACoffeeButton({ fallbackUrl, label }) {
   const buttonHostRef = useRef(null);
@@ -50,10 +55,22 @@ function App() {
 
   const CURRENT_VERSION = 'v4_empty_defaults';
 
+  const shouldRestoreDefaultDemo = () => {
+    const savedParticipants = localStorage.getItem('raffle_participants');
+    const savedPots = localStorage.getItem('raffle_pots');
+    const savedResults = localStorage.getItem('raffle_results');
+
+    return localStorage.getItem('raffle_setup_completed') !== 'true'
+      && savedParticipants === JSON.stringify(EXPANDED_DEMO_PARTICIPANTS)
+      && savedPots === JSON.stringify(EXPANDED_DEMO_POTS)
+      && savedResults === JSON.stringify(INITIAL_RESULTS);
+  };
+
   // State loaded from localStorage or fallback to defaults
   const [participants, setParticipants] = useState(() => {
     const version = localStorage.getItem('raffle_version');
     if (version !== CURRENT_VERSION) return INITIAL_PARTICIPANTS;
+    if (shouldRestoreDefaultDemo()) return INITIAL_PARTICIPANTS;
     const saved = localStorage.getItem('raffle_participants');
     return saved ? JSON.parse(saved) : INITIAL_PARTICIPANTS;
   });
@@ -61,6 +78,7 @@ function App() {
   const [pots, setPots] = useState(() => {
     const version = localStorage.getItem('raffle_version');
     if (version !== CURRENT_VERSION) return INITIAL_POTS;
+    if (shouldRestoreDefaultDemo()) return INITIAL_POTS;
     const saved = localStorage.getItem('raffle_pots');
     return saved ? JSON.parse(saved) : INITIAL_POTS;
   });
@@ -95,6 +113,7 @@ function App() {
   // Celebration overlay state lifted to root level
   const [showCelebration, setShowCelebration] = useState(false);
   const [drawnPair, setDrawnPair] = useState(null);
+  const [completionDraw, setCompletionDraw] = useState(null);
 
   const [showWizard, setShowWizard] = useState(false);
 
@@ -275,7 +294,16 @@ function App() {
   };
 
   // Draw complete handler
-  const handleDrawComplete = (pot, person, team) => {
+  const handleDrawComplete = (pot, person, team, isFinalDraw = false) => {
+    if (isFinalDraw) {
+      const completedResults = [...results, { pot, person, team }];
+      setResults(completedResults);
+      setCompletionDraw({ pot, results: completedResults });
+      playWin();
+      playWhistle();
+      return;
+    }
+
     setDrawnPair({ pot, person, team });
     setShowCelebration(true);
     playWin();
@@ -579,6 +607,15 @@ function App() {
         )}
       </div>
 
+      {completionDraw && (
+        <CompletionModal
+          pot={completionDraw.pot}
+          results={completionDraw.results}
+          onClose={() => setCompletionDraw(null)}
+          t={t}
+        />
+      )}
+
       {showWizard && (
         <OnboardingWizard
           initialParticipants={localStorage.getItem('raffle_setup_completed') === 'true' ? participants : []}
@@ -588,6 +625,9 @@ function App() {
           t={t}
         />
       )}
+
+      <Analytics />
+      <SpeedInsights />
     </>
   );
 }

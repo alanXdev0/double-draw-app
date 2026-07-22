@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import RouletteWheel from "./RouletteWheel";
 import playerSvg from "../assets/player.svg";
 
@@ -23,6 +23,20 @@ const getGlowColors = (teamName) => {
   return RANDOM_GLOW_COLORS[index];
 };
 
+const duplicateAndShuffle = (items) => {
+  const doubledItems = [...items, ...items];
+
+  for (let index = doubledItems.length - 1; index > 0; index -= 1) {
+    const randomIndex = Math.floor(Math.random() * (index + 1));
+    [doubledItems[index], doubledItems[randomIndex]] = [
+      doubledItems[randomIndex],
+      doubledItems[index],
+    ];
+  }
+
+  return doubledItems;
+};
+
 export default function DrawDashboard({
   participants = [],
   pots = {},
@@ -41,6 +55,7 @@ export default function DrawDashboard({
   const [isSpinning, setIsSpinning] = useState(false);
   const [leftTargetIdx, setLeftTargetIdx] = useState(null);
   const [rightTargetIdx, setRightTargetIdx] = useState(null);
+  const [selectedPair, setSelectedPair] = useState(null);
 
   // States to hold the active elements updating live at 60fps
   const [activePerson, setActivePerson] = useState("");
@@ -55,6 +70,17 @@ export default function DrawDashboard({
     (t) => !results.some((r) => r.pot === selectedPot && r.team === t),
   );
 
+  // Each available option is rendered twice in a shuffled sequence. This gives
+  // the roulette more visual movement while assignments remain unique.
+  const displayParticipants = useMemo(
+    () => duplicateAndShuffle(remainingParticipants),
+    [participants, results, selectedPot],
+  );
+  const displayTeams = useMemo(
+    () => duplicateAndShuffle(remainingTeams),
+    [pots, results, selectedPot],
+  );
+
   const startSpinning = () => {
     setIsSpinning(true);
     setLeftTargetIdx(null);
@@ -62,14 +88,23 @@ export default function DrawDashboard({
     setActivePerson("");
     setActiveTeam("");
 
-    // Pick random index from remaining lists
-    const randPersonIdx = Math.floor(
+    // Choose one unique assignment, then target either of its visual copies.
+    const chosenPerson = remainingParticipants[Math.floor(
       Math.random() * remainingParticipants.length,
-    );
-    const randTeamIdx = Math.floor(Math.random() * remainingTeams.length);
+    )];
+    const chosenTeam = remainingTeams[Math.floor(
+      Math.random() * remainingTeams.length,
+    )];
+    const personIndexes = displayParticipants
+      .map((person, index) => person === chosenPerson ? index : -1)
+      .filter((index) => index >= 0);
+    const teamIndexes = displayTeams
+      .map((team, index) => team === chosenTeam ? index : -1)
+      .filter((index) => index >= 0);
 
-    setLeftTargetIdx(randPersonIdx);
-    setRightTargetIdx(randTeamIdx);
+    setSelectedPair({ person: chosenPerson, team: chosenTeam });
+    setLeftTargetIdx(personIndexes[Math.floor(Math.random() * personIndexes.length)]);
+    setRightTargetIdx(teamIndexes[Math.floor(Math.random() * teamIndexes.length)]);
   };
 
   // Handle spin trigger
@@ -103,15 +138,17 @@ export default function DrawDashboard({
       spinCompleteCountRef.current = 0;
       setIsSpinning(false);
 
-      const chosenPerson = remainingParticipants[leftTargetIdx];
-      const chosenTeam = remainingTeams[rightTargetIdx];
+      const chosenPerson = selectedPair?.person;
+      const chosenTeam = selectedPair?.team;
+
+      if (!chosenPerson || !chosenTeam) return;
 
       // Make sure the central display settles exactly on the final winner
       setActivePerson(chosenPerson);
       setActiveTeam(chosenTeam);
 
       // Send the outcome to the parent component
-      onDrawComplete(selectedPot, chosenPerson, chosenTeam);
+      onDrawComplete(selectedPot, chosenPerson, chosenTeam, false);
     }
   };
 
@@ -119,6 +156,7 @@ export default function DrawDashboard({
   useEffect(() => {
     setLeftTargetIdx(null);
     setRightTargetIdx(null);
+    setSelectedPair(null);
     setActivePerson("");
     setActiveTeam("");
   }, [selectedPot]);
@@ -136,7 +174,7 @@ export default function DrawDashboard({
       setActiveTeam(lastTeam);
 
       // Trigger the selection completion
-      onDrawComplete(selectedPot, lastPerson, lastTeam);
+      onDrawComplete(selectedPot, lastPerson, lastTeam, true);
     }
   }, [
     remainingParticipants.length,
@@ -257,12 +295,12 @@ export default function DrawDashboard({
               {t("participants_title")}
             </div>
             <RouletteWheel
-              items={remainingParticipants}
+              items={displayParticipants}
               isSpinning={isSpinning}
               targetIndex={leftTargetIdx}
               onSpinComplete={handleLeftSpinComplete}
               onActiveItemChange={(idx) =>
-                setActivePerson(remainingParticipants[idx])
+                setActivePerson(displayParticipants[idx])
               }
               colorTheme="cyan"
               playTick={playTick}
@@ -338,11 +376,11 @@ export default function DrawDashboard({
               {t("teams_title")}
             </div>
             <RouletteWheel
-              items={remainingTeams}
+              items={displayTeams}
               isSpinning={isSpinning}
               targetIndex={rightTargetIdx}
               onSpinComplete={handleRightSpinComplete}
-              onActiveItemChange={(idx) => setActiveTeam(remainingTeams[idx])}
+              onActiveItemChange={(idx) => setActiveTeam(displayTeams[idx])}
               colorTheme="magenta"
               playTick={playTick}
               emptyText={t("empty_wheel")}
